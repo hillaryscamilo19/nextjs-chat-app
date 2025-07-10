@@ -59,7 +59,7 @@ export default function TestMessageLoadingPage() {
       // Test 2: Verificar backend directo
       setResult((prev) => prev + `\n🔗 Probando backend directo...\n`)
 
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3001"
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
       const directUrl = `${backendUrl}/api/messages/conversation/${conversationId}`
 
       const directResponse = await fetch(directUrl, {

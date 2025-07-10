@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hacer petición al backend real
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3001"
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
     const fullBackendUrl = `${backendUrl}/api/invite/generate`
 
     console.log("🔗 Haciendo petición a:", fullBackendUrl)

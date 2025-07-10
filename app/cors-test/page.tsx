@@ -13,8 +13,8 @@ export default function CorsTestPage() {
     try {
       // Test con diferentes URLs
       const tests = [
-        { name: "Health Check", url: "http://localhost:3001/api/health" },
-        { name: "Register Test", url: "http://localhost:3001/api/auth/register", method: "POST" },
+        { name: "Health Check", url: "http://10.0.0.15:3001/api/health" },
+        { name: "Register Test", url: "http://10.0.0.15:3001/api/auth/register", method: "POST" },
       ]
 
       for (const test of tests) {

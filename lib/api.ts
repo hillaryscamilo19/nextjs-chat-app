@@ -1,9 +1,11 @@
 // Configuración de la API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://10.0.0.15:3001/api"
+
+console.log("🔗 API Base URL:", API_BASE_URL) // Debug log
 
 // Función helper para hacer requests autenticados
 async function apiRequest(endpoint: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("authToken")
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
 
   const config: RequestInit = {
     headers: {
@@ -14,7 +16,10 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
     ...options,
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
+  const fullUrl = `${API_BASE_URL}${endpoint}`
+  console.log("🌐 Making request to:", fullUrl) // Debug log
+
+  const response = await fetch(fullUrl, config)
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: "Error de conexión" }))
@@ -102,6 +107,77 @@ export const inviteAPI = {
     return apiRequest(`/invite/join/${token}`, {
       method: "POST",
       body: JSON.stringify({ guestName }),
+    })
+  },
+}
+
+// ✅ Nueva API para grupos
+export const groupsAPI = {
+  create: async (groupData: {
+    name: string
+    description?: string
+    participants: string[]
+    settings?: {
+      onlyAdminsCanMessage?: boolean
+      onlyAdminsCanAddMembers?: boolean
+      onlyAdminsCanEditInfo?: boolean
+    }
+  }) => {
+    return apiRequest("/groups", {
+      method: "POST",
+      body: JSON.stringify(groupData),
+    })
+  },
+
+  getAll: async () => {
+    return apiRequest("/groups")
+  },
+
+  getById: async (groupId: string) => {
+    return apiRequest(`/groups/${groupId}`)
+  },
+
+  update: async (
+    groupId: string,
+    updateData: {
+      name?: string
+      description?: string
+      settings?: {
+        onlyAdminsCanMessage?: boolean
+        onlyAdminsCanAddMembers?: boolean
+        onlyAdminsCanEditInfo?: boolean
+      }
+    },
+  ) => {
+    return apiRequest(`/groups/${groupId}`, {
+      method: "PUT",
+      body: JSON.stringify(updateData),
+    })
+  },
+
+  addMembers: async (groupId: string, userIds: string[]) => {
+    return apiRequest(`/groups/${groupId}/members`, {
+      method: "POST",
+      body: JSON.stringify({ userIds }),
+    })
+  },
+
+  removeMember: async (groupId: string, userId: string) => {
+    return apiRequest(`/groups/${groupId}/members/${userId}`, {
+      method: "DELETE",
+    })
+  },
+
+  updateAdmin: async (groupId: string, userId: string, isAdmin: boolean) => {
+    return apiRequest(`/groups/${groupId}/members/${userId}/admin`, {
+      method: "PUT",
+      body: JSON.stringify({ isAdmin }),
+    })
+  },
+
+  leave: async (groupId: string) => {
+    return apiRequest(`/groups/${groupId}/leave`, {
+      method: "POST",
     })
   },
 }

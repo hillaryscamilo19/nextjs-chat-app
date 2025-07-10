@@ -12,7 +12,7 @@ export default function SimpleTestPage() {
 
     try {
       // Test 1: Health check
-      const healthResponse = await fetch("http://localhost:3001/api/health")
+      const healthResponse = await fetch("http://10.0.0.15:3001/api/health")
       const healthData = await healthResponse.json()
 
       if (healthResponse.ok) {
@@ -23,7 +23,7 @@ export default function SimpleTestPage() {
       }
 
       // Test 2: Register
-      const registerResponse = await fetch("http://localhost:3001/api/auth/register", {
+      const registerResponse = await fetch("http://10.0.0.15:3001/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -42,7 +42,7 @@ export default function SimpleTestPage() {
       }
 
       // Test 3: Login
-      const loginResponse = await fetch("http://localhost:3001/api/auth/login", {
+      const loginResponse = await fetch("http://10.0.0.15:3001/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
