@@ -95,7 +95,7 @@ export default function CorsTestPage() {
           <strong>Información de debug:</strong>
         </p>
         <p>• Tu origen actual: {typeof window !== "undefined" ? window.location.origin : "N/A"}</p>
-        <p>• Backend URL: http://localhost:3001/api</p>
+        <p>• Backend URL: http://10.0.0.15:3001/api</p>
         <p>• Si ves errores de CORS, verifica que el backend esté configurado correctamente.</p>
       </div>
     </div>

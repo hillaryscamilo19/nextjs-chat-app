@@ -12,8 +12,8 @@ export function useSocket() {
     if (!isAuthenticated || !user) return
 
     // Crear conexión Socket.IO
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3001"
-    console.log("🔗 Conectando Socket.IO a:", backendUrl)
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+  
 
     const newSocket = io(backendUrl, {
       transports: ["websocket", "polling"],
@@ -21,29 +21,29 @@ export function useSocket() {
     })
 
     newSocket.on("connect", () => {
-      console.log("✅ Socket.IO conectado:", newSocket.id)
+     
 
       // Autenticar usuario
       if (user.isGuest) {
         const guestToken = localStorage.getItem("guestToken")
-        console.log("🔍 Autenticando como invitado...")
+    
         newSocket.emit("authenticateGuest", guestToken)
       } else {
-        console.log("🔍 Autenticando como usuario registrado...")
+       
         newSocket.emit("authenticate", token)
       }
     })
 
     newSocket.on("authenticated", (data) => {
       if (data.success) {
-        console.log("✅ Usuario autenticado en Socket.IO")
+        
       } else {
         console.error("❌ Error autenticando en Socket.IO:", data.error)
       }
     })
 
     newSocket.on("disconnect", (reason) => {
-      console.log("🔌 Socket.IO desconectado:", reason)
+
     })
 
     newSocket.on("connect_error", (error) => {

@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+
 // GET /api/conversations/guest - Obtener conversaciones para usuarios invitados
 export async function GET(request: NextRequest) {
   try {
-    console.log("📋 API Route: GET /api/conversations/guest")
+    console.log("📋 API Route: GET /api/conversations")
 
     // Obtener el token de invitado
     const authHeader = request.headers.get("authorization")
@@ -17,7 +18,6 @@ export async function GET(request: NextRequest) {
     // Hacer petición al backend real
     const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
     const fullBackendUrl = `${backendUrl}/api/conversations/guest`
-
     console.log("🔗 Haciendo petición a:", fullBackendUrl)
 
     const response = await fetch(fullBackendUrl, {

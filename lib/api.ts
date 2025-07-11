@@ -1,7 +1,7 @@
 // Configuración de la API
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://10.0.0.15:3001/api"
 
-console.log("🔗 API Base URL:", API_BASE_URL) // Debug log
+
 
 // Función helper para hacer requests autenticados
 async function apiRequest(endpoint: string, options: RequestInit = {}) {
@@ -17,7 +17,7 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
   }
 
   const fullUrl = `${API_BASE_URL}${endpoint}`
-  console.log("🌐 Making request to:", fullUrl) // Debug log
+
 
   const response = await fetch(fullUrl, config)
 

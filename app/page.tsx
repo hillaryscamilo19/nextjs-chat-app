@@ -6,8 +6,10 @@ import { ChatSidebar } from "@/components/chat-sidebar"
 import { ChatWindow } from "@/components/chat-window"
 import { InviteLinkGenerator } from "@/components/invite-link-generator"
 import { ContactsModal } from "@/components/contacts-modal"
+import { CreateGroupModal } from "@/components/create-group-modal"
+import { GroupInfoModal } from "@/components/group-info-modal"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Users, Link, LogOut, UserPlus } from "lucide-react"
+import { MessageSquare, Users, Link, LogOut, UserPlus, UsersIcon } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useSocket } from "@/hooks/use-socket"
 import { conversationsAPI, messagesAPI } from "@/lib/api"
@@ -47,6 +49,15 @@ export interface Conversation {
   unreadCount: number
   lastActivity: string
   type?: string
+  name?: string
+  description?: string
+  admins?: User[]
+  createdBy?: User
+  settings?: {
+    onlyAdminsCanMessage?: boolean
+    onlyAdminsCanAddMembers?: boolean
+    onlyAdminsCanEditInfo?: boolean
+  }
 }
 
 export default function ChatApp() {
@@ -60,6 +71,8 @@ export default function ChatApp() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [showInviteGenerator, setShowInviteGenerator] = useState(false)
   const [showContactsModal, setShowContactsModal] = useState(false)
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
+  const [showGroupInfoModal, setShowGroupInfoModal] = useState(false)
   const [isLoadingConversations, setIsLoadingConversations] = useState(false)
 
   // Redirigir si no está autenticado
@@ -72,7 +85,6 @@ export default function ChatApp() {
   // Cargar conversaciones al iniciar
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log("🔄 Cargando conversaciones al iniciar sesión...")
       loadConversations()
     }
   }, [isAuthenticated, user])
@@ -83,7 +95,6 @@ export default function ChatApp() {
 
     // Escuchar nuevas conversaciones
     const handleNewConversation = (conversation: any) => {
-      console.log("🆕 Nueva conversación recibida:", conversation)
       const transformedConv = {
         ...conversation,
         id: conversation._id,
@@ -97,6 +108,55 @@ export default function ChatApp() {
         if (exists) return prev
         return [transformedConv, ...prev]
       })
+    }
+
+    // Escuchar nuevos grupos
+    const handleNewGroup = (data: { group: any; message: string }) => {
+      console.log("👥 Nuevo grupo recibido:", data.group)
+      const transformedGroup = {
+        ...data.group,
+        id: data.group._id,
+        participants: data.group.participants.map((p: any) => ({
+          ...p,
+          id: p._id,
+        })),
+      }
+      setConversations((prev) => [transformedGroup, ...prev])
+
+      toast({
+        title: "Nuevo grupo",
+        description: data.message,
+      })
+    }
+
+    // Escuchar actualizaciones de grupos
+    const handleGroupUpdated = (data: { group: any; updatedBy: string }) => {
+      
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === data.group._id
+            ? {
+                ...data.group,
+                id: data.group._id,
+                participants: data.group.participants.map((p: any) => ({
+                  ...p,
+                  id: p._id,
+                })),
+              }
+            : conv,
+        ),
+      )
+
+      if (selectedConversation?.id === data.group._id) {
+        setSelectedConversation({
+          ...data.group,
+          id: data.group._id,
+          participants: data.group.participants.map((p: any) => ({
+            ...p,
+            id: p._id,
+          })),
+        })
+      }
     }
 
     // Escuchar actualizaciones de conversaciones
@@ -146,20 +206,24 @@ export default function ChatApp() {
     }
 
     socket.on("newConversation", handleNewConversation)
+    socket.on("newGroup", handleNewGroup)
+    socket.on("groupUpdated", handleGroupUpdated)
     socket.on("conversationUpdate", handleConversationUpdate)
     socket.on("newMessage", handleNewMessage)
 
     return () => {
       socket.off("newConversation", handleNewConversation)
+      socket.off("newGroup", handleNewGroup)
+      socket.off("groupUpdated", handleGroupUpdated)
       socket.off("conversationUpdate", handleConversationUpdate)
       socket.off("newMessage", handleNewMessage)
     }
-  }, [socket, user])
+  }, [socket, user, selectedConversation, toast])
 
   const loadConversations = async () => {
     setIsLoadingConversations(true)
     try {
-      console.log("📋 Cargando conversaciones...")
+   
 
       let data = []
 
@@ -175,11 +239,11 @@ export default function ChatApp() {
           data = await response.json()
         }
       } else {
-        // Para usuarios registrados
+        // Para usuarios registrados, obtener todas las conversaciones (privadas y grupos)
         data = await conversationsAPI.getAll()
       }
 
-      console.log("✅ Conversaciones cargadas:", data.length)
+   
 
       // Transformar datos para compatibilidad
       const transformedConversations = data.map((conv: any) => ({
@@ -293,6 +357,46 @@ export default function ChatApp() {
     setShowContactsModal(true)
   }
 
+  const handleCreateGroup = () => {
+    setShowCreateGroupModal(true)
+  }
+
+  const handleGroupCreated = (group: any) => {
+    const transformedGroup = {
+      ...group,
+      id: group._id,
+      participants: group.participants.map((p: any) => ({
+        ...p,
+        id: p._id,
+      })),
+    }
+    setConversations((prev) => [transformedGroup, ...prev])
+    setSelectedConversation(transformedGroup)
+  }
+
+  const handleGroupUpdated = (updatedGroup: any) => {
+    const transformedGroup = {
+      ...updatedGroup,
+      id: updatedGroup._id,
+      participants: updatedGroup.participants.map((p: any) => ({
+        ...p,
+        id: p._id,
+      })),
+    }
+
+    setConversations((prev) => prev.map((conv) => (conv.id === transformedGroup.id ? transformedGroup : conv)))
+
+    if (selectedConversation?.id === transformedGroup.id) {
+      setSelectedConversation(transformedGroup)
+    }
+  }
+
+  const handleShowGroupInfo = () => {
+    if (selectedConversation?.type === "group") {
+      setShowGroupInfoModal(true)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -337,16 +441,29 @@ export default function ChatApp() {
               <Users className="h-5 w-5" />
             </Button>
             {selectedConversation && (
-              <div>
-                <h2 className="font-semibold">
-                  {selectedConversation.participants
-                    .filter((p) => p._id !== user._id)
-                    .map((p) => p.name)
-                    .join(", ")}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {selectedConversation.type === "invite" ? "Chat por invitación" : "Chat privado"}
-                </p>
+              <div className="flex items-center gap-2">
+                <div>
+                  <h2 className="font-semibold">
+                    {selectedConversation.type === "group"
+                      ? selectedConversation.name
+                      : selectedConversation.participants
+                          .filter((p) => p._id !== user._id)
+                          .map((p) => p.name)
+                          .join(", ")}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {selectedConversation.type === "group"
+                      ? `${selectedConversation.participants.length} miembros`
+                      : selectedConversation.type === "invite"
+                        ? "Chat por invitación"
+                        : "Chat privado"}
+                  </p>
+                </div>
+                {selectedConversation.type === "group" && (
+                  <Button variant="ghost" size="sm" onClick={handleShowGroupInfo}>
+                    <UsersIcon className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -357,6 +474,10 @@ export default function ChatApp() {
                 <Button variant="outline" size="sm" onClick={handleCreateNewChat}>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Nuevo Chat
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleCreateGroup}>
+                  <UsersIcon className="h-4 w-4 mr-2" />
+                  Nuevo Grupo
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setShowInviteGenerator(!showInviteGenerator)}>
                   <Link className="h-4 w-4 mr-2" />
@@ -394,6 +515,10 @@ export default function ChatApp() {
                           <UserPlus className="h-4 w-4 mr-2" />
                           Iniciar Nuevo Chat
                         </Button>
+                        <Button onClick={handleCreateGroup} variant="outline">
+                          <UsersIcon className="h-4 w-4 mr-2" />
+                          Crear Grupo
+                        </Button>
                         <Button onClick={() => setShowInviteGenerator(true)} variant="outline">
                           <Link className="h-4 w-4 mr-2" />
                           Compartir Enlace de Chat
@@ -427,6 +552,25 @@ export default function ChatApp() {
               setShowContactsModal(false)
             })
           }}
+        />
+      )}
+
+      {showCreateGroupModal && (
+        <CreateGroupModal
+          isOpen={showCreateGroupModal}
+          onClose={() => setShowCreateGroupModal(false)}
+          onGroupCreated={handleGroupCreated}
+          currentUser={compatibleUser}
+        />
+      )}
+
+      {showGroupInfoModal && selectedConversation?.type === "group" && (
+        <GroupInfoModal
+          isOpen={showGroupInfoModal}
+          onClose={() => setShowGroupInfoModal(false)}
+          group={selectedConversation as any}
+          currentUser={compatibleUser}
+          onGroupUpdated={handleGroupUpdated}
         />
       )}
     </div>

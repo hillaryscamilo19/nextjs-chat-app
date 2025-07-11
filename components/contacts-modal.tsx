@@ -1,80 +1,84 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Search, X, UserPlus, Phone } from "lucide-react"
-import { usersAPI } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Search, X, UserPlus, Phone } from "lucide-react";
+import { usersAPI } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface Contact {
-  _id: string
-  name: string
-  email?: string
-  phone?: string
-  isOnline?: boolean
+  _id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  isOnline?: boolean;
 }
 
 interface ContactsModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onCreateConversation: (participantId: string) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onCreateConversation: (participantId: string) => void;
 }
 
-export function ContactsModal({ isOpen, onClose, onCreateConversation }: ContactsModalProps) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [contacts, setContacts] = useState<Contact[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [phoneNumber, setPhoneNumber] = useState("")
-  const { toast } = useToast()
+export function ContactsModal({
+  isOpen,
+  onClose,
+  onCreateConversation,
+}: ContactsModalProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
-      loadContacts()
+      loadContacts();
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   const loadContacts = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await usersAPI.getAll()
-      setContacts(data)
+      const data = await usersAPI.getAll();
+      setContacts(data);
     } catch (error) {
       toast({
         title: "Error",
         description: "No se pudieron cargar los contactos",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const searchContacts = async () => {
     if (!searchTerm.trim()) {
-      loadContacts()
-      return
+      loadContacts();
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await usersAPI.search(searchTerm)
-      setContacts(data)
+      const data = await usersAPI.search(searchTerm);
+      setContacts(data);
     } catch (error) {
       toast({
         title: "Error",
         description: "Error buscando contactos",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleCreateChat = (contactId: string) => {
-    onCreateConversation(contactId)
-  }
+    onCreateConversation(contactId);
+  };
 
   const handleAddByPhone = () => {
     if (!phoneNumber.trim()) {
@@ -82,24 +86,24 @@ export function ContactsModal({ isOpen, onClose, onCreateConversation }: Contact
         title: "Error",
         description: "Ingresa un número de teléfono",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     // Aquí podrías implementar la lógica para buscar por teléfono
     toast({
       title: "Función en desarrollo",
       description: "La búsqueda por teléfono estará disponible pronto",
-    })
-  }
+    });
+  };
 
   const filteredContacts = contacts.filter(
     (contact) =>
       contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -147,13 +151,15 @@ export function ContactsModal({ isOpen, onClose, onCreateConversation }: Contact
           {isLoading ? (
             <div className="p-4 text-center">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-500">Buscando contactos...</p>
+              <p className="text-sm text-gray-500">Buscando contactos.</p>
             </div>
           ) : filteredContacts.length === 0 ? (
             <div className="p-4 text-center">
               <p className="text-gray-500 mb-2">No se encontraron contactos</p>
               <p className="text-sm text-gray-400">
-                {searchTerm ? "Intenta con otro término de búsqueda" : "No hay usuarios registrados"}
+                {searchTerm
+                  ? "Intenta con otro término de búsqueda"
+                  : "No hay usuarios registrados"}
               </p>
             </div>
           ) : (
@@ -181,8 +187,12 @@ export function ContactsModal({ isOpen, onClose, onCreateConversation }: Contact
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{contact.name}</p>
-                      <p className="text-sm text-gray-500 truncate">{contact.email || contact.phone || "Usuario"}</p>
+                      <p className="font-medium text-gray-900 truncate">
+                        {contact.name}
+                      </p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {contact.email || contact.phone || "Usuario"}
+                      </p>
                     </div>
 
                     <Button variant="ghost" size="sm">
@@ -197,9 +207,11 @@ export function ContactsModal({ isOpen, onClose, onCreateConversation }: Contact
 
         {/* Footer */}
         <div className="p-4 border-t bg-gray-50">
-          <p className="text-xs text-gray-500 text-center">Los contactos se sincronizan automáticamente</p>
+          <p className="text-xs text-gray-500 text-center">
+            Los contactos se sincronizan automáticamente
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }

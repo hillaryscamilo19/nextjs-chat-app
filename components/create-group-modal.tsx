@@ -1,103 +1,108 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Checkbox } from "@/components/ui/checkbox"
-import { X, Users, Search, Settings } from "lucide-react"
-import { usersAPI, groupsAPI } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { X, Users, Search, Settings } from "lucide-react";
+import { usersAPI, groupsAPI } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface User {
-  _id: string
-  name: string
-  email?: string
-  avatar?: string
-  isOnline?: boolean
+  _id: string;
+  name: string;
+  email?: string;
+  avatar?: string;
+  isOnline?: boolean;
 }
 
 interface CreateGroupModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onGroupCreated: (group: any) => void
-  currentUser: User
+  isOpen: boolean;
+  onClose: () => void;
+  onGroupCreated: (group: any) => void;
+  currentUser: User;
 }
 
-export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser }: CreateGroupModalProps) {
-  const [step, setStep] = useState(1) // 1: Info, 2: Miembros, 3: Configuración
-  const [groupName, setGroupName] = useState("")
-  const [groupDescription, setGroupDescription] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [availableUsers, setAvailableUsers] = useState<User[]>([])
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isCreating, setIsCreating] = useState(false)
+export function CreateGroupModal({
+  isOpen,
+  onClose,
+  onGroupCreated,
+  currentUser,
+}: CreateGroupModalProps) {
+  const [step, setStep] = useState(1);
+  const [groupName, setGroupName] = useState("");
+  const [groupDescription, setGroupDescription] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Configuraciones del grupo
   const [settings, setSettings] = useState({
     onlyAdminsCanMessage: false,
     onlyAdminsCanAddMembers: false,
     onlyAdminsCanEditInfo: true,
-  })
+  });
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen && step === 2) {
-      loadUsers()
+      loadUsers();
     }
-  }, [isOpen, step])
+  }, [isOpen, step]);
 
   const loadUsers = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const users = await usersAPI.getAll()
+      const users = await usersAPI.getAll();
       // Filtrar el usuario actual
-      setAvailableUsers(users.filter((user) => user._id !== currentUser._id))
+      setAvailableUsers(users.filter((user) => user._id !== currentUser._id));
     } catch (error) {
       toast({
         title: "Error",
         description: "No se pudieron cargar los usuarios",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const searchUsers = async (query: string) => {
     if (!query.trim()) {
-      loadUsers()
-      return
+      loadUsers();
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const users = await usersAPI.search(query)
-      setAvailableUsers(users.filter((user) => user._id !== currentUser._id))
+      const users = await usersAPI.search(query);
+      setAvailableUsers(users.filter((user) => user._id !== currentUser._id));
     } catch (error) {
       toast({
         title: "Error",
         description: "Error buscando usuarios",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const toggleUserSelection = (user: User) => {
     setSelectedUsers((prev) => {
-      const isSelected = prev.some((u) => u._id === user._id)
+      const isSelected = prev.some((u) => u._id === user._id);
       if (isSelected) {
-        return prev.filter((u) => u._id !== user._id)
+        return prev.filter((u) => u._id !== user._id);
       } else {
-        return [...prev, user]
+        return [...prev, user];
       }
-    })
-  }
+    });
+  };
 
   const handleCreateGroup = async () => {
     if (!groupName.trim()) {
@@ -105,8 +110,8 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
         title: "Error",
         description: "El nombre del grupo es requerido",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     if (selectedUsers.length === 0) {
@@ -114,60 +119,60 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
         title: "Error",
         description: "Debes seleccionar al menos un miembro",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsCreating(true)
+    setIsCreating(true);
     try {
       const groupData = {
         name: groupName.trim(),
         description: groupDescription.trim() || undefined,
         participants: selectedUsers.map((user) => user._id),
         settings,
-      }
+      };
 
-      const newGroup = await groupsAPI.create(groupData)
+      const newGroup = await groupsAPI.create(groupData);
 
       toast({
         title: "¡Grupo creado!",
         description: `El grupo "${groupName}" ha sido creado exitosamente`,
-      })
+      });
 
-      onGroupCreated(newGroup)
-      handleClose()
+      onGroupCreated(newGroup);
+      handleClose();
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Error creando el grupo",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsCreating(false)
+      setIsCreating(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setStep(1)
-    setGroupName("")
-    setGroupDescription("")
-    setSearchTerm("")
-    setSelectedUsers([])
+    setStep(1);
+    setGroupName("");
+    setGroupDescription("");
+    setSearchTerm("");
+    setSelectedUsers([]);
     setSettings({
       onlyAdminsCanMessage: false,
       onlyAdminsCanAddMembers: false,
       onlyAdminsCanEditInfo: true,
-    })
-    onClose()
-  }
+    });
+    onClose();
+  };
 
   const filteredUsers = availableUsers.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -191,13 +196,19 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
               <div key={stepNumber} className="flex items-center">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step >= stepNumber ? "bg-green-500 text-white" : "bg-gray-200 text-gray-600"
+                    step >= stepNumber
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-200 text-gray-600"
                   }`}
                 >
                   {stepNumber}
                 </div>
                 {stepNumber < 3 && (
-                  <div className={`w-8 h-0.5 ${step > stepNumber ? "bg-green-500" : "bg-gray-200"}`} />
+                  <div
+                    className={`w-8 h-0.5 ${
+                      step > stepNumber ? "bg-green-500" : "bg-gray-200"
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -210,18 +221,24 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Nombre del grupo *</label>
+                <label className="block text-sm font-medium mb-2">
+                  Nombre del grupo *
+                </label>
                 <Input
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
                   placeholder="Ej: Familia, Trabajo, Amigos..."
                   maxLength={100}
                 />
-                <p className="text-xs text-gray-500 mt-1">{groupName.length}/100 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {groupName.length}/100 caracteres
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Descripción (opcional)</label>
+                <label className="block text-sm font-medium mb-2">
+                  Descripción (opcional)
+                </label>
                 <Textarea
                   value={groupDescription}
                   onChange={(e) => setGroupDescription(e.target.value)}
@@ -229,7 +246,9 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                   maxLength={500}
                   rows={3}
                 />
-                <p className="text-xs text-gray-500 mt-1">{groupDescription.length}/500 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {groupDescription.length}/500 caracteres
+                </p>
               </div>
 
               <div className="bg-blue-50 p-3 rounded-lg">
@@ -238,8 +257,8 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                   <span className="text-sm font-medium">Información</span>
                 </div>
                 <p className="text-xs text-blue-600 mt-1">
-                  Serás el administrador del grupo y podrás agregar miembros, cambiar configuraciones y gestionar el
-                  grupo.
+                  Serás el administrador del grupo y podrás agregar miembros,
+                  cambiar configuraciones y gestionar el grupo.
                 </p>
               </div>
             </div>
@@ -249,14 +268,16 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Buscar usuarios</label>
+                <label className="block text-sm font-medium mb-2">
+                  Buscar usuarios
+                </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     value={searchTerm}
                     onChange={(e) => {
-                      setSearchTerm(e.target.value)
-                      searchUsers(e.target.value)
+                      setSearchTerm(e.target.value);
+                      searchUsers(e.target.value);
                     }}
                     placeholder="Buscar por nombre o email..."
                     className="pl-10"
@@ -291,12 +312,16 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
 
               {/* Lista de usuarios */}
               <div>
-                <label className="block text-sm font-medium mb-2">Usuarios disponibles</label>
+                <label className="block text-sm font-medium mb-2">
+                  Usuarios disponibles
+                </label>
                 <div className="max-h-60 overflow-y-auto border rounded-lg">
                   {isLoading ? (
                     <div className="p-4 text-center">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto mb-2"></div>
-                      <p className="text-sm text-gray-500">Cargando usuarios...</p>
+                      <p className="text-sm text-gray-500">
+                        Cargando usuarios...
+                      </p>
                     </div>
                   ) : filteredUsers.length === 0 ? (
                     <div className="p-4 text-center text-gray-500">
@@ -305,7 +330,9 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                     </div>
                   ) : (
                     filteredUsers.map((user) => {
-                      const isSelected = selectedUsers.some((u) => u._id === user._id)
+                      const isSelected = selectedUsers.some(
+                        (u) => u._id === user._id
+                      );
                       return (
                         <div
                           key={user._id}
@@ -331,12 +358,16 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">{user.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                              <p className="font-medium text-sm truncate">
+                                {user.name}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate">
+                                {user.email}
+                              </p>
                             </div>
                           </div>
                         </div>
-                      )
+                      );
                     })
                   )}
                 </div>
@@ -357,10 +388,18 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                   <Checkbox
                     id="onlyAdminsCanMessage"
                     checked={settings.onlyAdminsCanMessage}
-                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, onlyAdminsCanMessage: !!checked }))}
+                    onCheckedChange={(checked) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        onlyAdminsCanMessage: !!checked,
+                      }))
+                    }
                   />
                   <div className="flex-1">
-                    <label htmlFor="onlyAdminsCanMessage" className="text-sm font-medium cursor-pointer">
+                    <label
+                      htmlFor="onlyAdminsCanMessage"
+                      className="text-sm font-medium cursor-pointer"
+                    >
                       Solo administradores pueden enviar mensajes
                     </label>
                     <p className="text-xs text-gray-500 mt-1">
@@ -374,11 +413,17 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                     id="onlyAdminsCanAddMembers"
                     checked={settings.onlyAdminsCanAddMembers}
                     onCheckedChange={(checked) =>
-                      setSettings((prev) => ({ ...prev, onlyAdminsCanAddMembers: !!checked }))
+                      setSettings((prev) => ({
+                        ...prev,
+                        onlyAdminsCanAddMembers: !!checked,
+                      }))
                     }
                   />
                   <div className="flex-1">
-                    <label htmlFor="onlyAdminsCanAddMembers" className="text-sm font-medium cursor-pointer">
+                    <label
+                      htmlFor="onlyAdminsCanAddMembers"
+                      className="text-sm font-medium cursor-pointer"
+                    >
                       Solo administradores pueden agregar miembros
                     </label>
                     <p className="text-xs text-gray-500 mt-1">
@@ -392,15 +437,22 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                     id="onlyAdminsCanEditInfo"
                     checked={settings.onlyAdminsCanEditInfo}
                     onCheckedChange={(checked) =>
-                      setSettings((prev) => ({ ...prev, onlyAdminsCanEditInfo: !!checked }))
+                      setSettings((prev) => ({
+                        ...prev,
+                        onlyAdminsCanEditInfo: !!checked,
+                      }))
                     }
                   />
                   <div className="flex-1">
-                    <label htmlFor="onlyAdminsCanEditInfo" className="text-sm font-medium cursor-pointer">
+                    <label
+                      htmlFor="onlyAdminsCanEditInfo"
+                      className="text-sm font-medium cursor-pointer"
+                    >
                       Solo administradores pueden editar información del grupo
                     </label>
                     <p className="text-xs text-gray-500 mt-1">
-                      Controla quién puede cambiar el nombre, descripción y configuraciones
+                      Controla quién puede cambiar el nombre, descripción y
+                      configuraciones
                     </p>
                   </div>
                 </div>
@@ -408,8 +460,8 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
 
               <div className="bg-yellow-50 p-3 rounded-lg">
                 <p className="text-xs text-yellow-700">
-                  💡 <strong>Tip:</strong> Puedes cambiar estas configuraciones más tarde desde la información del
-                  grupo.
+                  💡 <strong>Tip:</strong> Puedes cambiar estas configuraciones
+                  más tarde desde la información del grupo.
                 </p>
               </div>
 
@@ -426,7 +478,8 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
                     </p>
                   )}
                   <p>
-                    <strong>Miembros:</strong> {selectedUsers.length + 1} (incluyéndote)
+                    <strong>Miembros:</strong> {selectedUsers.length + 1}{" "}
+                    (incluyéndote)
                   </p>
                 </div>
               </div>
@@ -436,21 +489,30 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated, currentUser 
 
         {/* Footer */}
         <div className="p-4 border-t flex justify-between">
-          <Button variant="outline" onClick={step === 1 ? handleClose : () => setStep(step - 1)}>
+          <Button
+            variant="outline"
+            onClick={step === 1 ? handleClose : () => setStep(step - 1)}
+          >
             {step === 1 ? "Cancelar" : "Anterior"}
           </Button>
 
           {step < 3 ? (
-            <Button onClick={() => setStep(step + 1)} disabled={step === 1 && !groupName.trim()}>
+            <Button
+              onClick={() => setStep(step + 1)}
+              disabled={step === 1 && !groupName.trim()}
+            >
               Siguiente
             </Button>
           ) : (
-            <Button onClick={handleCreateGroup} disabled={isCreating || selectedUsers.length === 0}>
+            <Button
+              onClick={handleCreateGroup}
+              disabled={isCreating || selectedUsers.length === 0}
+            >
               {isCreating ? "Creando..." : "Crear Grupo"}
             </Button>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

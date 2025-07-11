@@ -37,6 +37,7 @@ export function ChatSidebar({
     )
   );
 
+
   const formatTime = (date: Date | string) => {
     const messageDate = new Date(date);
     const now = new Date();
@@ -116,7 +117,7 @@ export function ChatSidebar({
         {isLoading ? (
           <div className="p-4 text-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto mb-2"></div>
-            <p className="text-sm text-gray-500">Cargando chats...</p>
+            <p className="text-sm text-gray-500">Cargando chats..</p>
           </div>
         ) : filteredConversations.length === 0 ? (
           <div className="p-4 text-center">
@@ -140,10 +141,9 @@ export function ChatSidebar({
             const otherUser = conversation.participants.find(
               (p) => p.id !== currentUser.id
             );
+           
             if (!otherUser) return null;
-
             const isSelected = selectedConversation?.id === conversation.id;
-
             return (
               <div
                 key={conversation.id}
@@ -182,8 +182,6 @@ export function ChatSidebar({
                       )}
                     </div>
 
-
-
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-gray-600 truncate flex-1">
                         {conversation.lastMessage
@@ -198,7 +196,6 @@ export function ChatSidebar({
                         </Badge>
                       )}
                     </div>
-
                     {/* Indicadores adicionales */}
                     <div className="flex items-center mt-1 gap-2">
                       {conversation.type === "invite" && (
