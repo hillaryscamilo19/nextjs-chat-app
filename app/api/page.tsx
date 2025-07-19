@@ -11,15 +11,7 @@ export default function TestMessageLoadingPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const testMessageLoading = async () => {
-    setIsLoading(true)
-    setResult("🧪 Probando carga de mensajes...\n")
 
-    try {
-      const token = localStorage.getItem("authToken")
-
-      if (!token) {
-        setResult((prev) => prev + "❌ Token de autenticación no encontrado\n")
-        setResult((prev) => prev + "💡 Inicia sesión primero\n")
         return
       }
 
@@ -44,7 +36,15 @@ export default function TestMessageLoadingPage() {
         const messages = await response.json()
         setResult((prev) => prev + `✅ Mensajes cargados: ${messages.length}\n`)
         setResult((prev) => prev + `📋 Primeros mensajes:\n`)
+    setIsLoading(true)
+    setResult("🧪 Probando carga de mensajes...\n")
 
+    try {
+      const token = localStorage.getItem("authToken")
+
+      if (!token) {
+        setResult((prev) => prev + "❌ Token de autenticación no encontrado\n")
+        setResult((prev) => prev + "💡 Inicia sesión primero\n")
         messages.slice(0, 3).forEach((msg, index) => {
           setResult(
             (prev) =>
@@ -59,7 +59,7 @@ export default function TestMessageLoadingPage() {
       // Test 2: Verificar backend directo
       setResult((prev) => prev + `\n🔗 Probando backend directo...\n`)
 
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002"
       const directUrl = `${backendUrl}/api/messages/conversation/${conversationId}`
 
       const directResponse = await fetch(directUrl, {
@@ -155,7 +155,7 @@ export default function TestMessageLoadingPage() {
               <li>
                 Reinicia el servidor: <code>npm run dev</code>
               </li>
-              <li>Verifica que el backend esté corriendo en puerto 3001</li>
+              <li>Verifica que el backend esté corriendo en puerto 3002</li>
             </ol>
 
             <p className="mt-4">

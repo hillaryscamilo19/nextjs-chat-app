@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, { params }: { params: { groupId
 
     const body = await request.json()
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002"
     const fullBackendUrl = `${backendUrl}/api/groups/${groupId}/members`
 
     const response = await fetch(fullBackendUrl, {

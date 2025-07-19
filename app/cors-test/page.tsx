@@ -13,8 +13,8 @@ export default function CorsTestPage() {
     try {
       // Test con diferentes URLs
       const tests = [
-        { name: "Health Check", url: "http://10.0.0.15:3001/api/health" },
-        { name: "Register Test", url: "http://10.0.0.15:3001/api/auth/register", method: "POST" },
+        { name: "Health Check", url: "http://10.0.0.15:3002/api/health" },
+        { name: "Register Test", url: "http://10.0.0.15:3002/api/auth/register", method: "POST" },
       ]
 
       for (const test of tests) {
@@ -95,7 +95,7 @@ export default function CorsTestPage() {
           <strong>Información de debug:</strong>
         </p>
         <p>• Tu origen actual: {typeof window !== "undefined" ? window.location.origin : "N/A"}</p>
-        <p>• Backend URL: http://10.0.0.15:3001/api</p>
+        <p>• Backend URL: http://10.0.0.15:3002/api</p>
         <p>• Si ves errores de CORS, verifica que el backend esté configurado correctamente.</p>
       </div>
     </div>

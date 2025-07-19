@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Hacer petición al backend real
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002"
     const fullBackendUrl = `${backendUrl}/api/conversations/guest`
     console.log("🔗 Haciendo petición a:", fullBackendUrl)
 

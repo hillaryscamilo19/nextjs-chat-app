@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Aquí conectarías con tu backend de Node.js + Express
-    // const response = await fetch('//http://10.0.0.15:3001/api/messages', {
+    // const response = await fetch('//http://10.0.0.15:3002/api/messages', {
     //   method: 'POST',
     //   headers: {
     //     'Content-Type': 'application/json',

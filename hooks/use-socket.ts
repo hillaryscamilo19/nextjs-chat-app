@@ -12,7 +12,7 @@ export function useSocket() {
     if (!isAuthenticated || !user) return
 
     // Crear conexión Socket.IO
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002"
   
 
     const newSocket = io(backendUrl, {

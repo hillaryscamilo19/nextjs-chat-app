@@ -15,7 +15,7 @@ export default function TestBackendPage() {
   const testConnection = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://10.0.0.15:3001/api/health")
+      const response = await fetch("http://10.0.0.15:3002/api/health")
       const data = await response.json()
       setResult(`✅ Backend conectado: ${JSON.stringify(data, null, 2)}`)
     } catch (error) {
@@ -28,7 +28,7 @@ export default function TestBackendPage() {
   const testRegister = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://10.0.0.15:3001/api/auth/register", {
+      const response = await fetch("http://10.0.0.15:3002/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export default function TestBackendPage() {
   const testLogin = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://10.0.0.15:3001/api/auth/login", {
+      const response = await fetch("http://10.0.0.15:3002/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: { token: s
     }
 
     // Hacer petición al backend real
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002"
     const fullBackendUrl = `${backendUrl}/api/invite/verify/${token}`
 
     console.log("🔗 Haciendo petición a:", fullBackendUrl)

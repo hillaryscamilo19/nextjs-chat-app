@@ -1,55 +1,69 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function DebugGuestMessagesPage() {
-  const [conversationId, setConversationId] = useState("")
-  const [guestToken, setGuestToken] = useState("")
-  const [result, setResult] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [conversationId, setConversationId] = useState("");
+  const [guestToken, setGuestToken] = useState("");
+  const [result, setResult] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const testGuestMessages = async () => {
-    setIsLoading(true)
-    setResult("🧪 Probando mensajes de invitado...\n")
+    setIsLoading(true);
+    setResult("🧪 Probando mensajes de invitado...\n");
 
     try {
       if (!conversationId.trim()) {
-        setResult((prev) => prev + "❌ Ingresa un ID de conversación\n")
-        return
+        setResult((prev) => prev + "❌ Ingresa un ID de conversación\n");
+        return;
       }
 
       if (!guestToken.trim()) {
-        setResult((prev) => prev + "❌ Ingresa un token de invitado\n")
-        return
+        setResult((prev) => prev + "❌ Ingresa un token de invitado\n");
+        return;
       }
 
       // Test 1: Obtener mensajes
-      setResult((prev) => prev + `\n📖 Obteniendo mensajes de conversación: ${conversationId}\n`)
+      setResult(
+        (prev) =>
+          prev + `\n📖 Obteniendo mensajes de conversación: ${conversationId}\n`
+      );
 
-      const messagesResponse = await fetch(`/api/messages/conversation/${conversationId}/guest`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Guest ${guestToken}`,
-        },
-      })
+      const messagesResponse = await fetch(
+        `/api/messages/conversation/${conversationId}/guest`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Guest ${guestToken}`,
+          },
+        }
+      );
 
-      setResult((prev) => prev + `📊 Status: ${messagesResponse.status} ${messagesResponse.statusText}\n`)
+      setResult(
+        (prev) =>
+          prev +
+          `📊 Status: ${messagesResponse.status} ${messagesResponse.statusText}\n`
+      );
 
       if (messagesResponse.ok) {
-        const messages = await messagesResponse.json()
-        setResult((prev) => prev + `✅ Mensajes obtenidos: ${messages.length}\n`)
-        setResult((prev) => prev + `📋 Datos: ${JSON.stringify(messages, null, 2)}\n`)
+        const messages = await messagesResponse.json();
+        setResult(
+          (prev) => prev + `✅ Mensajes obtenidos: ${messages.length}\n`
+        );
+        setResult(
+          (prev) => prev + `📋 Datos: ${JSON.stringify(messages, null, 2)}\n`
+        );
       } else {
-        const errorData = await messagesResponse.json()
-        setResult((prev) => prev + `❌ Error: ${errorData.error}\n`)
+        const errorData = await messagesResponse.json();
+        setResult((prev) => prev + `❌ Error: ${errorData.error}\n`);
       }
 
       // Test 2: Enviar mensaje
-      setResult((prev) => prev + `\n📤 Enviando mensaje de prueba...\n`)
+      setResult((prev) => prev + `\n📤 Enviando mensaje de prueba...\n`);
 
       const sendResponse = await fetch("/api/messages/guest", {
         method: "POST",
@@ -61,42 +75,47 @@ export default function DebugGuestMessagesPage() {
           conversationId,
           content: `Mensaje de prueba - ${new Date().toLocaleTimeString()}`,
         }),
-      })
+      });
 
-      setResult((prev) => prev + `📊 Status: ${sendResponse.status} ${sendResponse.statusText}\n`)
+      setResult(
+        (prev) =>
+          prev +
+          `📊 Status: ${sendResponse.status} ${sendResponse.statusText}\n`
+      );
 
       if (sendResponse.ok) {
-        const sentMessage = await sendResponse.json()
-        setResult((prev) => prev + `✅ Mensaje enviado: ${sentMessage._id}\n`)
+        const sentMessage = await sendResponse.json();
+        setResult((prev) => prev + `✅ Mensaje enviado: ${sentMessage._id}\n`);
       } else {
-        const errorData = await sendResponse.json()
-        setResult((prev) => prev + `❌ Error enviando: ${errorData.error}\n`)
+        const errorData = await sendResponse.json();
+        setResult((prev) => prev + `❌ Error enviando: ${errorData.error}\n`);
       }
     } catch (error) {
-      setResult((prev) => prev + `\n❌ Error general: ${error}\n`)
+      setResult((prev) => prev + `\n❌ Error general: ${error}\n`);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const loadFromLocalStorage = () => {
-    const savedGuestToken = localStorage.getItem("guestToken")
-    const savedGuestUser = localStorage.getItem("guestUser")
+    const savedGuestToken = localStorage.getItem("guestToken");
+    const savedGuestUser = localStorage.getItem("guestUser");
 
     if (savedGuestToken) {
-      setGuestToken(savedGuestToken)
-      setResult("✅ Token de invitado cargado desde localStorage\n")
+      setGuestToken(savedGuestToken);
+      setResult("✅ Token de invitado cargado desde localStorage\n");
     }
+
 
     if (savedGuestUser) {
       try {
-        const guestUser = JSON.parse(savedGuestUser)
-        setResult((prev) => prev + `👤 Usuario invitado: ${guestUser.name}\n`)
+        const guestUser = JSON.parse(savedGuestUser);
+        setResult((prev) => prev + `👤 Usuario invitado: ${guestUser.name}\n`);
       } catch (error) {
-        setResult((prev) => prev + `❌ Error parseando usuario invitado\n`)
+        setResult((prev) => prev + `❌ Error parseando usuario invitado\n`);
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen p-8 bg-gray-50">
@@ -108,7 +127,9 @@ export default function DebugGuestMessagesPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">ID de Conversación</label>
+                <label className="block text-sm font-medium mb-2">
+                  ID de Conversación
+                </label>
                 <Input
                   value={conversationId}
                   onChange={(e) => setConversationId(e.target.value)}
@@ -116,7 +137,9 @@ export default function DebugGuestMessagesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Token de Invitado</label>
+                <label className="block text-sm font-medium mb-2">
+                  Token de Invitado
+                </label>
                 <Input
                   value={guestToken}
                   onChange={(e) => setGuestToken(e.target.value)}
@@ -151,10 +174,19 @@ export default function DebugGuestMessagesPage() {
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <ol className="list-decimal list-inside space-y-1">
-              <li>Únete a un chat como invitado desde un enlace de invitación</li>
-              <li>Haz clic en "Cargar desde localStorage" para obtener tus datos</li>
-              <li>Ingresa el ID de la conversación (puedes verlo en la URL o en los logs)</li>
-              <li>Haz clic en "Probar Mensajes" para verificar la funcionalidad</li>
+              <li>
+                Únete a un chat como invitado desde un enlace de invitación
+              </li>
+              <li>
+                Haz clic en "Cargar desde localStorage" para obtener tus datos
+              </li>
+              <li>
+                Ingresa el ID de la conversación (puedes verlo en la URL o en
+                los logs)
+              </li>
+              <li>
+                Haz clic en "Probar Mensajes" para verificar la funcionalidad
+              </li>
             </ol>
             <p className="mt-4">
               <strong>Rutas que se prueban:</strong>
@@ -167,5 +199,5 @@ export default function DebugGuestMessagesPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

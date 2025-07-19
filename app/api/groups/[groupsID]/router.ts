@@ -13,7 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: { groupId:
       return NextResponse.json({ error: "Token de autorización requerido" }, { status: 401 })
     }
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002"
     const fullBackendUrl = `${backendUrl}/api/groups/${groupId}`
 
     const response = await fetch(fullBackendUrl, {
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest, { params }: { params: { groupId:
 
     const body = await request.json()
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001"
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002"
     const fullBackendUrl = `${backendUrl}/api/groups/${groupId}`
 
     const response = await fetch(fullBackendUrl, {

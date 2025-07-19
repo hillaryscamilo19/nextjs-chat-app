@@ -37,7 +37,7 @@ export default function TestInvitePage() {
       // Test 2: Probar backend directo
       setResult((prev) => prev + `\n🔗 Probando backend directo...\n`)
 
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3001/api"
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://10.0.0.15:3002/api"
       const healthResponse = await fetch(`${backendUrl}/api/health`)
 
       if (healthResponse.ok) {
@@ -96,7 +96,7 @@ export default function TestInvitePage() {
               <strong>Frontend:</strong> {typeof window !== "undefined" ? window.location.origin : "N/A"}
             </p>
             <p>
-              <strong>Backend API:</strong> {process.env.NEXT_PUBLIC_API_URL || "http://10.0.0.15:3001/api"}
+              <strong>Backend API:</strong> {process.env.NEXT_PUBLIC_API_URL || "http://10.0.0.15:3002/api"}
             </p>
             <p>
               <strong>Rutas de invitación:</strong>
