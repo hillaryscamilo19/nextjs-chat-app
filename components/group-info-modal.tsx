@@ -73,7 +73,10 @@ export function GroupInfoModal({
 
   const isCreator = group.createdBy._id === currentUser._id;
   const isAdmin =
-    group.admins.some((admin) => admin._id === currentUser._id) || isCreator;
+    (Array.isArray(group.admins) &&
+      group.admins.some((admin) => admin._id === currentUser._id)) ||
+    isCreator;
+
   const canEditInfo =
     isAdmin && (group.settings.onlyAdminsCanEditInfo ? isAdmin : true);
   const canAddMembers =
@@ -367,7 +370,7 @@ export function GroupInfoModal({
               </div>
               <div className="flex items-center gap-1">
                 <Shield className="h-4 w-4" />
-                <span>{group.admins.length} administradores</span>
+                <span>{group.admins?.length ?? 0} administradores</span>
               </div>
             </div>
           </div>
@@ -396,9 +399,10 @@ export function GroupInfoModal({
 
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {group.participants.map((member) => {
-                const isMemberAdmin = group.admins.some(
-                  (admin) => admin._id === member._id
-                );
+                const isMemberAdmin =
+                  group.admins?.some((admin) => admin._id === member._id) ??
+                  false;
+
                 const isMemberCreator = group.createdBy._id === member._id;
                 const isCurrentUser = member._id === currentUser._id;
 
@@ -494,12 +498,12 @@ export function GroupInfoModal({
                 <span>Solo admins pueden enviar mensajes</span>
                 <Badge
                   variant={
-                    group.settings.onlyAdminsCanMessage
+                    group.settings?.onlyAdminsCanMessage
                       ? "default"
                       : "secondary"
                   }
                 >
-                  {group.settings.onlyAdminsCanMessage
+                  {group.settings?.onlyAdminsCanMessage
                     ? "Activado"
                     : "Desactivado"}
                 </Badge>
@@ -508,12 +512,12 @@ export function GroupInfoModal({
                 <span>Solo admins pueden agregar miembros</span>
                 <Badge
                   variant={
-                    group.settings.onlyAdminsCanAddMembers
+                    group.settings?.onlyAdminsCanAddMembers
                       ? "default"
                       : "secondary"
                   }
                 >
-                  {group.settings.onlyAdminsCanAddMembers
+                  {group.settings?.onlyAdminsCanAddMembers
                     ? "Activado"
                     : "Desactivado"}
                 </Badge>
@@ -522,12 +526,12 @@ export function GroupInfoModal({
                 <span>Solo admins pueden editar información</span>
                 <Badge
                   variant={
-                    group.settings.onlyAdminsCanEditInfo
+                    group.settings?.onlyAdminsCanEditInfo
                       ? "default"
                       : "secondary"
                   }
                 >
-                  {group.settings.onlyAdminsCanEditInfo
+                  {group.settings?.onlyAdminsCanEditInfo
                     ? "Activado"
                     : "Desactivado"}
                 </Badge>
