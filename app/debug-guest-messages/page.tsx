@@ -106,7 +106,6 @@ export default function DebugGuestMessagesPage() {
       setResult("✅ Token de invitado cargado desde localStorage\n");
     }
 
-
     if (savedGuestUser) {
       try {
         const guestUser = JSON.parse(savedGuestUser);

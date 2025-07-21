@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react" // <--- CAMBIO AQUÍ: import React
 import { useRouter } from "next/navigation"
 import { ChatSidebar } from "@/components/chat-sidebar"
 import { ChatWindow } from "@/components/chat-window"
@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useSocket } from "@/hooks/use-socket"
 import { conversationsAPI, messagesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { LeftNavSidebar } from "@/components/left-nav-sidebar"
 
 export interface User {
   _id: string
@@ -65,7 +66,6 @@ export default function ChatApp() {
   const router = useRouter()
   const { toast } = useToast()
   const socket = useSocket()
-
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -122,7 +122,6 @@ export default function ChatApp() {
         })),
       }
       setConversations((prev) => [transformedGroup, ...prev])
-
       toast({
         title: "Nuevo grupo",
         description: data.message,
@@ -131,7 +130,6 @@ export default function ChatApp() {
 
     // Escuchar actualizaciones de grupos
     const handleGroupUpdated = (data: { group: any; updatedBy: string }) => {
-      
       setConversations((prev) =>
         prev.map((conv) =>
           conv.id === data.group._id
@@ -146,7 +144,6 @@ export default function ChatApp() {
             : conv,
         ),
       )
-
       if (selectedConversation?.id === data.group._id) {
         setSelectedConversation({
           ...data.group,
@@ -179,7 +176,6 @@ export default function ChatApp() {
     // Escuchar nuevos mensajes para actualizar conversaciones
     const handleNewMessage = (data: { message: any; conversation: string }) => {
       console.log("📨 Nuevo mensaje recibido para actualizar conversaciones:", data)
-
       // Actualizar la conversación con el último mensaje
       setConversations((prev) =>
         prev.map((conv) => {
@@ -191,7 +187,9 @@ export default function ChatApp() {
                 id: data.message._id,
                 senderId: data.message.sender?._id || data.message.senderId,
                 content: data.message.content,
+                createdAt: data.message.createdAt, // Use createdAt from message
                 timestamp: new Date(data.message.createdAt),
+                readBy: [],
                 isRead: isFromCurrentUser,
                 senderName: data.message.sender?.name || data.message.senderName,
                 isGuest: data.message.sender?.isGuest || data.message.senderType === "guest",
@@ -223,10 +221,7 @@ export default function ChatApp() {
   const loadConversations = async () => {
     setIsLoadingConversations(true)
     try {
-   
-
       let data = []
-
       if (user?.isGuest) {
         // Para usuarios invitados, buscar conversaciones de invitación
         const guestToken = localStorage.getItem("guestToken")
@@ -243,8 +238,6 @@ export default function ChatApp() {
         data = await conversationsAPI.getAll()
       }
 
-   
-
       // Transformar datos para compatibilidad
       const transformedConversations = data.map((conv: any) => ({
         ...conv,
@@ -254,7 +247,6 @@ export default function ChatApp() {
           id: p._id,
         })),
       }))
-
       setConversations(transformedConversations)
     } catch (error: any) {
       console.error("❌ Error cargando conversaciones:", error)
@@ -270,15 +262,11 @@ export default function ChatApp() {
 
   const handleSendMessage = async (content: string) => {
     if (!selectedConversation || !user) return
-
     try {
       console.log("📤 Enviando mensaje:", content.substring(0, 50) + "...")
-
       let message
-
       if (user.isGuest) {
         const guestToken = localStorage.getItem("guestToken")
-
         const response = await fetch("/api/messages/guest", {
           method: "POST",
           headers: {
@@ -290,12 +278,10 @@ export default function ChatApp() {
             content: content.trim(),
           }),
         })
-
         if (!response.ok) {
           const errorData = await response.json()
           throw new Error(errorData.error || "Error enviando mensaje")
         }
-
         message = await response.json()
       } else {
         message = await messagesAPI.send({
@@ -303,7 +289,6 @@ export default function ChatApp() {
           content: content.trim(),
         })
       }
-
       console.log("✅ Mensaje enviado y guardado:", message._id)
 
       // Emitir mensaje via Socket.IO para tiempo real
@@ -330,13 +315,14 @@ export default function ChatApp() {
                   timestamp: new Date(),
                   readBy: [],
                   isRead: true,
+                  senderName: user.name,
+                  isGuest: user.isGuest,
                 },
                 lastActivity: new Date().toISOString(),
               }
             : conv,
         ),
       )
-
       console.log("✅ Mensaje enviado exitosamente y persistido")
     } catch (error: any) {
       console.error("❌ Error enviando mensaje:", error)
@@ -383,9 +369,7 @@ export default function ChatApp() {
         id: p._id,
       })),
     }
-
     setConversations((prev) => prev.map((conv) => (conv.id === transformedGroup.id ? transformedGroup : conv)))
-
     if (selectedConversation?.id === transformedGroup.id) {
       setSelectedConversation(transformedGroup)
     }
@@ -399,9 +383,9 @@ export default function ChatApp() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-zinc-900 text-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
           <p>Cargando...</p>
         </div>
       </div>
@@ -418,9 +402,12 @@ export default function ChatApp() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className={`${isSidebarOpen ? "w-80" : "w-0"} transition-all duration-300 overflow-hidden`}>
+    <div className="flex h-screen bg-zinc-800">
+      {/* Left Navigation Sidebar */}
+      <LeftNavSidebar currentUser={compatibleUser} />
+
+      {/* Main Content Area */}
+      <div className={`${isSidebarOpen ? "w-80" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0`}>
         <ChatSidebar
           conversations={conversations}
           selectedConversation={selectedConversation}
@@ -433,11 +420,16 @@ export default function ChatApp() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-zinc-800">
         {/* Header */}
-        <div className="bg-white border-b px-4 py-3 flex items-center justify-between">
+        <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between text-white">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-gray-400 hover:bg-zinc-800 hover:text-white"
+            >
               <Users className="h-5 w-5" />
             </Button>
             {selectedConversation && (
@@ -451,7 +443,7 @@ export default function ChatApp() {
                           .map((p) => p.name)
                           .join(", ")}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-400">
                     {selectedConversation.type === "group"
                       ? `${selectedConversation.participants.length} miembros`
                       : selectedConversation.type === "invite"
@@ -460,38 +452,61 @@ export default function ChatApp() {
                   </p>
                 </div>
                 {selectedConversation.type === "group" && (
-                  <Button variant="ghost" size="sm" onClick={handleShowGroupInfo}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleShowGroupInfo}
+                    className="text-gray-400 hover:bg-zinc-800 hover:text-white"
+                  >
                     <UsersIcon className="h-4 w-4" />
                   </Button>
                 )}
               </div>
             )}
           </div>
-
           <div className="flex items-center gap-2">
             {!user.isGuest && (
               <>
-                <Button variant="outline" size="sm" onClick={handleCreateNewChat}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCreateNewChat}
+                  className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700"
+                >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Nuevo Chat
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleCreateGroup}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCreateGroup}
+                  className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700"
+                >
                   <UsersIcon className="h-4 w-4 mr-2" />
                   Nuevo Grupo
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowInviteGenerator(!showInviteGenerator)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowInviteGenerator(!showInviteGenerator)}
+                  className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700"
+                >
                   <Link className="h-4 w-4 mr-2" />
                   Compartir Enlace
                 </Button>
               </>
             )}
-            <Button variant="outline" size="sm" onClick={handleLogout}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700"
+            >
               <LogOut className="h-4 w-4 mr-2" />
               Salir
             </Button>
           </div>
         </div>
-
         {/* Content Area */}
         <div className="flex-1 flex">
           {/* Chat Window */}
@@ -503,23 +518,35 @@ export default function ChatApp() {
                 onSendMessage={handleSendMessage}
               />
             ) : (
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center bg-zinc-800 text-white">
                 <div className="text-center">
-                  <MessageSquare className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Selecciona una conversación</h3>
-                  <p className="text-gray-500 mb-4">Elige un contacto para comenzar a chatear</p>
+                  <MessageSquare className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-100 mb-2">Selecciona una conversación</h3>
+                  <p className="text-gray-400 mb-4">Elige un contacto para comenzar a chatear</p>
                   <div className="space-y-2">
                     {!user.isGuest && (
                       <>
-                        <Button onClick={handleCreateNewChat} variant="outline">
+                        <Button
+                          onClick={handleCreateNewChat}
+                          variant="outline"
+                          className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700"
+                        >
                           <UserPlus className="h-4 w-4 mr-2" />
                           Iniciar Nuevo Chat
                         </Button>
-                        <Button onClick={handleCreateGroup} variant="outline">
+                        <Button
+                          onClick={handleCreateGroup}
+                          variant="outline"
+                          className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700"
+                        >
                           <UsersIcon className="h-4 w-4 mr-2" />
                           Crear Grupo
                         </Button>
-                        <Button onClick={() => setShowInviteGenerator(true)} variant="outline">
+                        <Button
+                          onClick={() => setShowInviteGenerator(true)}
+                          variant="outline"
+                          className="bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700"
+                        >
                           <Link className="h-4 w-4 mr-2" />
                           Compartir Enlace de Chat
                         </Button>
@@ -530,16 +557,14 @@ export default function ChatApp() {
               </div>
             )}
           </div>
-
           {/* Invite Generator Sidebar */}
           {showInviteGenerator && !user.isGuest && (
-            <div className="w-96 border-l bg-white p-4">
+            <div className="w-96 border-l border-zinc-800 bg-zinc-900 p-4 text-white">
               <InviteLinkGenerator currentUser={compatibleUser} />
             </div>
           )}
         </div>
       </div>
-
       {/* Modals */}
       {showContactsModal && (
         <ContactsModal
@@ -554,7 +579,6 @@ export default function ChatApp() {
           }}
         />
       )}
-
       {showCreateGroupModal && (
         <CreateGroupModal
           isOpen={showCreateGroupModal}
@@ -563,7 +587,6 @@ export default function ChatApp() {
           currentUser={compatibleUser}
         />
       )}
-
       {showGroupInfoModal && selectedConversation?.type === "group" && (
         <GroupInfoModal
           isOpen={showGroupInfoModal}
