@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Search, MoreVertical, UserPlus, PencilLine } from "lucide-react" // Added PencilLine for new chat icon
-import type { Conversation, User } from "@/app/page"
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import userIco from "@/public/Iconofondo.jpg";
+import { Search, MoreVertical, UserPlus, PencilLine } from "lucide-react"; // Added PencilLine for new chat icon
+import type { Conversation, User } from "@/app/page";
 
 interface ChatSidebarProps {
-  conversations: Conversation[]
-  selectedConversation: Conversation | null
-  onSelectConversation: (conversation: Conversation) => void
-  currentUser: User
-  isLoading?: boolean
-  onCreateNewChat?: () => void
-  onRefresh?: () => void
+  conversations: Conversation[];
+  selectedConversation: Conversation | null;
+  onSelectConversation: (conversation: Conversation) => void;
+  currentUser: User;
+  isLoading?: boolean;
+  onCreateNewChat?: () => void;
+  onRefresh?: () => void;
 }
-
 export function ChatSidebar({
   conversations,
   selectedConversation,
@@ -27,33 +27,38 @@ export function ChatSidebar({
   onCreateNewChat,
   onRefresh,
 }: ChatSidebarProps) {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
   const filteredConversations = conversations.filter((conv) =>
-    conv.participants.some((p) => p.id !== currentUser.id && p.name.toLowerCase().includes(searchTerm.toLowerCase())),
-  )
+    conv.participants.some(
+      (p) =>
+        p.id !== currentUser.id &&
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
   const formatTime = (date: Date | string) => {
-    const messageDate = new Date(date)
-    const now = new Date()
-    const diffInHours = (now.getTime() - messageDate.getTime()) / (1000 * 60 * 60)
-    if (diffInHours < 1) return "ahora"
+    const messageDate = new Date(date);
+    const now = new Date();
+    const diffInHours =
+      (now.getTime() - messageDate.getTime()) / (1000 * 60 * 60);
+    if (diffInHours < 1) return "ahora";
     if (diffInHours < 24) {
       return messageDate.toLocaleTimeString("es-ES", {
         hour: "2-digit",
         minute: "2-digit",
-      })
+      });
     }
-    if (diffInHours < 48) return "ayer"
+    if (diffInHours < 48) return "ayer";
     return messageDate.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "2-digit",
-    })
-  }
+    });
+  };
 
   const truncateMessage = (text: string, maxLength = 50) => {
-    if (text.length <= maxLength) return text
-    return text.substring(0, maxLength) + "..."
-  }
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
 
   return (
     <div className="bg-zinc-900 border-r border-zinc-800 h-full flex flex-col text-white">
@@ -70,11 +75,15 @@ export function ChatSidebar({
                 className="text-gray-400 hover:bg-zinc-800 hover:text-white"
                 onClick={onCreateNewChat}
               >
-                <PencilLine className="h-5 w-5" />
+                <PencilLine className="h-8 w-8" />
               </Button>
             )}
             {/* More Options / Three Dots Icon */}
-            <Button size="sm" variant="ghost" className="text-gray-400 hover:bg-zinc-800 hover:text-white">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-gray-400 hover:bg-zinc-800 hover:text-white"
+            >
               <MoreVertical className="h-5 w-5" />
             </Button>
           </div>
@@ -122,31 +131,27 @@ export function ChatSidebar({
           </div>
         ) : (
           filteredConversations.map((conversation) => {
-            const otherUser = conversation.participants.find((p) => p.id !== currentUser.id)
-            if (!otherUser) return null
-            const isSelected = selectedConversation?.id === conversation.id
+            const otherUser = conversation.participants.find(
+              (p) => p.id !== currentUser.id
+            );
+            if (!otherUser) return null;
+            const isSelected = selectedConversation?.id === conversation.id;
             return (
               <div
                 key={conversation.id}
                 className={`p-4 border-b border-zinc-800 cursor-pointer transition-colors 
-                ${isSelected ? "bg-zinc-800 border-l-4 border-l-green-500" : "hover:bg-zinc-800"}`}
+                ${
+                  isSelected
+                    ? "bg-zinc-800 border-l-4 border-l-green-500"
+                    : "hover:bg-zinc-800"
+                }`}
                 onClick={() => onSelectConversation(conversation)}
               >
                 <div className="flex items-center gap-3">
                   {/* Avatar */}
                   <div className="relative">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage
-                        src={otherUser.avatar || `/placeholder.svg?height=48&width=48&query=${otherUser.name}`}
-                        alt={otherUser.name}
-                      />
-                      <AvatarFallback className="bg-blue-600 text-white font-medium">
-                        {otherUser.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()}
-                      </AvatarFallback>
+                    <Avatar className="w-20 h-20 ">
+                      <img src={userIco.src} alt="User icon" />
                     </Avatar>
                     {otherUser.isOnline && (
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-zinc-900" />
@@ -155,10 +160,15 @@ export function ChatSidebar({
                   {/* Chat Information */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold text-gray-100 truncate">{otherUser.name}</h3>
+                      <h3 className="font-semibold text-gray-100 truncate">
+                        {otherUser.name}
+                      </h3>
                       {conversation.lastMessage && (
                         <span className="text-xs text-gray-400 flex-shrink-0">
-                          {formatTime(conversation.lastMessage.createdAt || conversation.lastMessage.timestamp)}
+                          {formatTime(
+                            conversation.lastMessage.createdAt ||
+                              conversation.lastMessage.timestamp
+                          )}
                         </span>
                       )}
                     </div>
@@ -170,23 +180,29 @@ export function ChatSidebar({
                       </p>
                       {conversation.unreadCount > 0 && (
                         <Badge className="ml-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                          {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                          {conversation.unreadCount > 99
+                            ? "99+"
+                            : conversation.unreadCount}
                         </Badge>
                       )}
                     </div>
                     {/* Additional Indicators */}
                     <div className="flex items-center mt-1 gap-2">
                       {conversation.type === "invite" && (
-                        <span className="text-xs text-blue-400 bg-blue-900 px-2 py-1 rounded-full">Invitación</span>
+                        <span className="text-xs text-blue-400 bg-blue-900 px-2 py-1 rounded-full">
+                          Invitación
+                        </span>
                       )}
                       {otherUser.isGuest && (
-                        <span className="text-xs text-orange-400 bg-orange-900 px-2 py-1 rounded-full">Invitado</span>
+                        <span className="text-xs text-orange-400 bg-orange-900 px-2 py-1 rounded-full">
+                          Invitado
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
               </div>
-            )
+            );
           })
         )}
       </div>
@@ -196,7 +212,10 @@ export function ChatSidebar({
         <div className="flex items-center gap-3">
           <Avatar className="w-10 h-10 border-2 border-green-500">
             <AvatarImage
-              src={currentUser.avatar || `/placeholder.svg?height=40&width=40&query=${currentUser.name}`}
+              src={
+                currentUser.avatar ||
+                `/placeholder.svg?height=40&width=40&query=${currentUser.name}`
+              }
               alt={currentUser.name}
             />
             <AvatarFallback className="bg-green-600 text-white">
@@ -208,11 +227,15 @@ export function ChatSidebar({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-gray-100 truncate">{currentUser.name}</p>
-            <p className="text-sm text-gray-400">{currentUser.isGuest ? "Usuario invitado" : "En línea"}</p>
+            <p className="font-medium text-gray-100 truncate">
+              {currentUser.name}
+            </p>
+            <p className="text-sm text-gray-400">
+              {currentUser.isGuest ? "Usuario invitado" : "En línea"}
+            </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,97 +1,105 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react" // <--- CAMBIO AQUÍ: import React
-import { useRouter } from "next/navigation"
-import { ChatSidebar } from "@/components/chat-sidebar"
-import { ChatWindow } from "@/components/chat-window"
-import { InviteLinkGenerator } from "@/components/invite-link-generator"
-import { ContactsModal } from "@/components/contacts-modal"
-import { CreateGroupModal } from "@/components/create-group-modal"
-import { GroupInfoModal } from "@/components/group-info-modal"
-import { Button } from "@/components/ui/button"
-import { MessageSquare, Users, Link, LogOut, UserPlus, UsersIcon } from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
-import { useSocket } from "@/hooks/use-socket"
-import { conversationsAPI, messagesAPI } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
-import { LeftNavSidebar } from "@/components/left-nav-sidebar"
+import { useState, useEffect } from "react"; // <--- CAMBIO AQUÍ: import React
+import { useRouter } from "next/navigation";
+import { ChatSidebar } from "@/components/chat-sidebar";
+import { ChatWindow } from "@/components/chat-window";
+import { InviteLinkGenerator } from "@/components/invite-link-generator";
+import { ContactsModal } from "@/components/contacts-modal";
+import { CreateGroupModal } from "@/components/create-group-modal";
+import { GroupInfoModal } from "@/components/group-info-modal";
+import { Button } from "@/components/ui/button";
+import {
+  MessageSquare,
+  Users,
+  Link,
+  LogOut,
+  UserPlus,
+  UsersIcon,
+} from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useSocket } from "@/hooks/use-socket";
+import { conversationsAPI, messagesAPI } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { LeftNavSidebar } from "@/components/left-nav-sidebar";
 
 export interface User {
-  _id: string
-  id: string
-  name: string
-  email?: string
-  avatar?: string
-  lastSeen?: Date
-  isOnline?: boolean
-  isGuest?: boolean
+  _id: string;
+  id: string;
+  name: string;
+  email?: string;
+  avatar?: string;
+  lastSeen?: Date;
+  isOnline?: boolean;
+  isGuest?: boolean;
 }
 
 export interface Message {
-  _id?: string
-  id: string
-  sender?: User
-  senderId: string
-  receiverId?: string
-  content: string
-  createdAt?: string
-  timestamp: Date
-  readBy?: Array<{ user: string; readAt: string }>
-  isRead: boolean
-  senderName?: string
-  isGuest?: boolean
+  _id?: string;
+  id: string;
+  sender?: User;
+  senderId: string;
+  receiverId?: string;
+  content: string;
+  createdAt?: string;
+  timestamp: Date;
+  readBy?: Array<{ user: string; readAt: string }>;
+  isRead: boolean;
+  senderName?: string;
+  isGuest?: boolean;
 }
 
 export interface Conversation {
-  _id: string
-  id: string
-  participants: User[]
-  lastMessage?: Message
-  unreadCount: number
-  lastActivity: string
-  type?: string
-  name?: string
-  description?: string
-  admins?: User[]
-  createdBy?: User
+  _id: string;
+  id: string;
+  participants: User[];
+  lastMessage?: Message;
+  unreadCount: number;
+  lastActivity: string;
+  type?: string;
+  name?: string;
+  description?: string;
+  admins?: User[];
+  createdBy?: User;
   settings?: {
-    onlyAdminsCanMessage?: boolean
-    onlyAdminsCanAddMembers?: boolean
-    onlyAdminsCanEditInfo?: boolean
-  }
+    onlyAdminsCanMessage?: boolean;
+    onlyAdminsCanAddMembers?: boolean;
+    onlyAdminsCanEditInfo?: boolean;
+  };
 }
 
 export default function ChatApp() {
-  const { user, isAuthenticated, logout, isLoading } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
-  const socket = useSocket()
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const [showInviteGenerator, setShowInviteGenerator] = useState(false)
-  const [showContactsModal, setShowContactsModal] = useState(false)
-  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
-  const [showGroupInfoModal, setShowGroupInfoModal] = useState(false)
-  const [isLoadingConversations, setIsLoadingConversations] = useState(false)
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const socket = useSocket();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showInviteGenerator, setShowInviteGenerator] = useState(false);
+  const [showContactsModal, setShowContactsModal] = useState(false);
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+  const [showGroupInfoModal, setShowGroupInfoModal] = useState(false);
+  const [isLoadingConversations, setIsLoadingConversations] = useState(false);
 
   // Redirigir si no está autenticado
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push("/login")
+      router.push("/login");
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, router]);
 
   // Cargar conversaciones al iniciar
   useEffect(() => {
     if (isAuthenticated && user) {
-      loadConversations()
+      loadConversations();
     }
-  }, [isAuthenticated, user])
+  }, [isAuthenticated, user]);
 
   // Socket.IO para actualizaciones en tiempo real
   useEffect(() => {
-    if (!socket) return
+    if (!socket) return;
 
     // Escuchar nuevas conversaciones
     const handleNewConversation = (conversation: any) => {
@@ -102,17 +110,17 @@ export default function ChatApp() {
           ...p,
           id: p._id,
         })),
-      }
+      };
       setConversations((prev) => {
-        const exists = prev.some((conv) => conv.id === transformedConv.id)
-        if (exists) return prev
-        return [transformedConv, ...prev]
-      })
-    }
+        const exists = prev.some((conv) => conv.id === transformedConv.id);
+        if (exists) return prev;
+        return [transformedConv, ...prev];
+      });
+    };
 
     // Escuchar nuevos grupos
     const handleNewGroup = (data: { group: any; message: string }) => {
-      console.log("👥 Nuevo grupo recibido:", data.group)
+      console.log("👥 Nuevo grupo recibido:", data.group);
       const transformedGroup = {
         ...data.group,
         id: data.group._id,
@@ -120,13 +128,13 @@ export default function ChatApp() {
           ...p,
           id: p._id,
         })),
-      }
-      setConversations((prev) => [transformedGroup, ...prev])
+      };
+      setConversations((prev) => [transformedGroup, ...prev]);
       toast({
         title: "Nuevo grupo",
         description: data.message,
-      })
-    }
+      });
+    };
 
     // Escuchar actualizaciones de grupos
     const handleGroupUpdated = (data: { group: any; updatedBy: string }) => {
@@ -141,9 +149,9 @@ export default function ChatApp() {
                   id: p._id,
                 })),
               }
-            : conv,
-        ),
-      )
+            : conv
+        )
+      );
       if (selectedConversation?.id === data.group._id) {
         setSelectedConversation({
           ...data.group,
@@ -152,13 +160,13 @@ export default function ChatApp() {
             ...p,
             id: p._id,
           })),
-        })
+        });
       }
-    }
+    };
 
     // Escuchar actualizaciones de conversaciones
     const handleConversationUpdate = (data: any) => {
-      console.log("🔄 Conversación actualizada:", data)
+      console.log("🔄 Conversación actualizada:", data);
       setConversations((prev) =>
         prev.map((conv) =>
           conv.id === data.conversationId
@@ -168,19 +176,24 @@ export default function ChatApp() {
                 lastActivity: data.lastActivity,
                 unreadCount: data.unreadCount || conv.unreadCount,
               }
-            : conv,
-        ),
-      )
-    }
+            : conv
+        )
+      );
+    };
 
     // Escuchar nuevos mensajes para actualizar conversaciones
     const handleNewMessage = (data: { message: any; conversation: string }) => {
-      console.log("📨 Nuevo mensaje recibido para actualizar conversaciones:", data)
+      console.log(
+        "📨 Nuevo mensaje recibido para actualizar conversaciones:",
+        data
+      );
       // Actualizar la conversación con el último mensaje
       setConversations((prev) =>
         prev.map((conv) => {
           if (conv.id === data.conversation) {
-            const isFromCurrentUser = data.message.sender?._id === user?._id || data.message.senderId === user?.id
+            const isFromCurrentUser =
+              data.message.sender?._id === user?._id ||
+              data.message.senderId === user?.id;
             return {
               ...conv,
               lastMessage: {
@@ -191,51 +204,56 @@ export default function ChatApp() {
                 timestamp: new Date(data.message.createdAt),
                 readBy: [],
                 isRead: isFromCurrentUser,
-                senderName: data.message.sender?.name || data.message.senderName,
-                isGuest: data.message.sender?.isGuest || data.message.senderType === "guest",
+                senderName:
+                  data.message.sender?.name || data.message.senderName,
+                isGuest:
+                  data.message.sender?.isGuest ||
+                  data.message.senderType === "guest",
               },
               lastActivity: data.message.createdAt,
-              unreadCount: isFromCurrentUser ? conv.unreadCount : (conv.unreadCount || 0) + 1,
-            }
+              unreadCount: isFromCurrentUser
+                ? conv.unreadCount
+                : (conv.unreadCount || 0) + 1,
+            };
           }
-          return conv
-        }),
-      )
-    }
+          return conv;
+        })
+      );
+    };
 
-    socket.on("newConversation", handleNewConversation)
-    socket.on("newGroup", handleNewGroup)
-    socket.on("groupUpdated", handleGroupUpdated)
-    socket.on("conversationUpdate", handleConversationUpdate)
-    socket.on("newMessage", handleNewMessage)
+    socket.on("newConversation", handleNewConversation);
+    socket.on("newGroup", handleNewGroup);
+    socket.on("groupUpdated", handleGroupUpdated);
+    socket.on("conversationUpdate", handleConversationUpdate);
+    socket.on("newMessage", handleNewMessage);
 
     return () => {
-      socket.off("newConversation", handleNewConversation)
-      socket.off("newGroup", handleNewGroup)
-      socket.off("groupUpdated", handleGroupUpdated)
-      socket.off("conversationUpdate", handleConversationUpdate)
-      socket.off("newMessage", handleNewMessage)
-    }
-  }, [socket, user, selectedConversation, toast])
+      socket.off("newConversation", handleNewConversation);
+      socket.off("newGroup", handleNewGroup);
+      socket.off("groupUpdated", handleGroupUpdated);
+      socket.off("conversationUpdate", handleConversationUpdate);
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, user, selectedConversation, toast]);
 
   const loadConversations = async () => {
-    setIsLoadingConversations(true)
+    setIsLoadingConversations(true);
     try {
-      let data = []
+      let data = [];
       if (user?.isGuest) {
         // Para usuarios invitados, buscar conversaciones de invitación
-        const guestToken = localStorage.getItem("guestToken")
+        const guestToken = localStorage.getItem("guestToken");
         const response = await fetch("/api/conversations/guest", {
           headers: {
             Authorization: `Guest ${guestToken}`,
           },
-        })
+        });
         if (response.ok) {
-          data = await response.json()
+          data = await response.json();
         }
       } else {
         // Para usuarios registrados, obtener todas las conversaciones (privadas y grupos)
-        data = await conversationsAPI.getAll()
+        data = await conversationsAPI.getAll();
       }
 
       // Transformar datos para compatibilidad
@@ -246,27 +264,27 @@ export default function ChatApp() {
           ...p,
           id: p._id,
         })),
-      }))
-      setConversations(transformedConversations)
+      }));
+      setConversations(transformedConversations);
     } catch (error: any) {
-      console.error("❌ Error cargando conversaciones:", error)
+      console.error("❌ Error cargando conversaciones:", error);
       toast({
         title: "Error",
         description: "No se pudieron cargar las conversaciones",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoadingConversations(false)
+      setIsLoadingConversations(false);
     }
-  }
+  };
 
   const handleSendMessage = async (content: string) => {
-    if (!selectedConversation || !user) return
+    if (!selectedConversation || !user) return;
     try {
-      console.log("📤 Enviando mensaje:", content.substring(0, 50) + "...")
-      let message
+      console.log("📤 Enviando mensaje:", content.substring(0, 50) + "...");
+      let message;
       if (user.isGuest) {
-        const guestToken = localStorage.getItem("guestToken")
+        const guestToken = localStorage.getItem("guestToken");
         const response = await fetch("/api/messages/guest", {
           method: "POST",
           headers: {
@@ -277,26 +295,26 @@ export default function ChatApp() {
             conversationId: selectedConversation._id,
             content: content.trim(),
           }),
-        })
+        });
         if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || "Error enviando mensaje")
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Error enviando mensaje");
         }
-        message = await response.json()
+        message = await response.json();
       } else {
         message = await messagesAPI.send({
           conversationId: selectedConversation._id,
           content: content.trim(),
-        })
+        });
       }
-      console.log("✅ Mensaje enviado y guardado:", message._id)
+      console.log("✅ Mensaje enviado y guardado:", message._id);
 
       // Emitir mensaje via Socket.IO para tiempo real
       if (socket) {
         socket.emit("messageCreated", {
           conversationId: selectedConversation._id,
           message,
-        })
+        });
       }
 
       // Actualizar la conversación local
@@ -320,32 +338,32 @@ export default function ChatApp() {
                 },
                 lastActivity: new Date().toISOString(),
               }
-            : conv,
-        ),
-      )
-      console.log("✅ Mensaje enviado exitosamente y persistido")
+            : conv
+        )
+      );
+      console.log("✅ Mensaje enviado exitosamente y persistido");
     } catch (error: any) {
-      console.error("❌ Error enviando mensaje:", error)
+      console.error("❌ Error enviando mensaje:", error);
       toast({
         title: "Error",
         description: error.message || "Error enviando mensaje",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
+    logout();
+    router.push("/login");
+  };
 
   const handleCreateNewChat = () => {
-    setShowContactsModal(true)
-  }
+    setShowContactsModal(true);
+  };
 
   const handleCreateGroup = () => {
-    setShowCreateGroupModal(true)
-  }
+    setShowCreateGroupModal(true);
+  };
 
   const handleGroupCreated = (group: any) => {
     const transformedGroup = {
@@ -355,10 +373,10 @@ export default function ChatApp() {
         ...p,
         id: p._id,
       })),
-    }
-    setConversations((prev) => [transformedGroup, ...prev])
-    setSelectedConversation(transformedGroup)
-  }
+    };
+    setConversations((prev) => [transformedGroup, ...prev]);
+    setSelectedConversation(transformedGroup);
+  };
 
   const handleGroupUpdated = (updatedGroup: any) => {
     const transformedGroup = {
@@ -368,18 +386,22 @@ export default function ChatApp() {
         ...p,
         id: p._id,
       })),
-    }
-    setConversations((prev) => prev.map((conv) => (conv.id === transformedGroup.id ? transformedGroup : conv)))
+    };
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === transformedGroup.id ? transformedGroup : conv
+      )
+    );
     if (selectedConversation?.id === transformedGroup.id) {
-      setSelectedConversation(transformedGroup)
+      setSelectedConversation(transformedGroup);
     }
-  }
+  };
 
   const handleShowGroupInfo = () => {
     if (selectedConversation?.type === "group") {
-      setShowGroupInfoModal(true)
+      setShowGroupInfoModal(true);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -389,17 +411,17 @@ export default function ChatApp() {
           <p>Cargando...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
-    return null
+    return null;
   }
 
   const compatibleUser: User = {
     ...user,
     id: user._id,
-  }
+  };
 
   return (
     <div className="flex h-screen bg-zinc-800">
@@ -407,7 +429,11 @@ export default function ChatApp() {
       <LeftNavSidebar currentUser={compatibleUser} />
 
       {/* Main Content Area */}
-      <div className={`${isSidebarOpen ? "w-80" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0`}>
+      <div
+        className={`${
+          isSidebarOpen ? "w-80" : "w-0"
+        } transition-all duration-300 overflow-hidden flex-shrink-0`}
+      >
         <ChatSidebar
           conversations={conversations}
           selectedConversation={selectedConversation}
@@ -447,8 +473,8 @@ export default function ChatApp() {
                     {selectedConversation.type === "group"
                       ? `${selectedConversation.participants.length} miembros`
                       : selectedConversation.type === "invite"
-                        ? "Chat por invitación"
-                        : "Chat privado"}
+                      ? "Chat por invitación"
+                      : "Chat privado"}
                   </p>
                 </div>
                 {selectedConversation.type === "group" && (
@@ -521,8 +547,12 @@ export default function ChatApp() {
               <div className="flex-1 flex items-center justify-center bg-zinc-800 text-white">
                 <div className="text-center">
                   <MessageSquare className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-100 mb-2">Selecciona una conversación</h3>
-                  <p className="text-gray-400 mb-4">Elige un contacto para comenzar a chatear</p>
+                  <h3 className="text-lg font-medium text-gray-100 mb-2">
+                    Selecciona una conversación
+                  </h3>
+                  <p className="text-gray-400 mb-4">
+                    Elige un contacto para comenzar a chatear
+                  </p>
                   <div className="space-y-2">
                     {!user.isGuest && (
                       <>
@@ -573,9 +603,9 @@ export default function ChatApp() {
           onCreateConversation={(participantId) => {
             // Crear nueva conversación
             conversationsAPI.create(participantId).then(() => {
-              loadConversations()
-              setShowContactsModal(false)
-            })
+              loadConversations();
+              setShowContactsModal(false);
+            });
           }}
         />
       )}
@@ -597,5 +627,5 @@ export default function ChatApp() {
         />
       )}
     </div>
-  )
+  );
 }

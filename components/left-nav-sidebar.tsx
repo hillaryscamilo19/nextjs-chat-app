@@ -1,24 +1,25 @@
-"use client"
+"use client";
 
-import { MessageSquare, Phone, Settings, Star, Archive } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Menu } from "lucide-react" // Assuming this is the hamburger menu icon
+import { MessageSquare, Phone, Settings, Star, Archive } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Usericon from "@/public/icono.png";
+import { Menu } from "lucide-react"; // Assuming this is the hamburger menu icon
 
 interface LeftNavSidebarProps {
   currentUser: {
-    name: string
-    avatar?: string
-  }
-  unreadChatsCount?: number
-  unreadArchiveCount?: number
+    name: string;
+    avatar?: string;
+  };
+  unreadChatsCount?: number;
+  unreadArchiveCount?: number;
 }
 
 export function LeftNavSidebar({
   currentUser,
-  unreadChatsCount = 14, // Default from image
-  unreadArchiveCount = 9, // Default from image
+  unreadChatsCount = 0,
+  unreadArchiveCount = 0,
 }: LeftNavSidebarProps) {
   return (
     <div className="flex flex-col items-center justify-between w-16 bg-zinc-950 text-gray-400 py-4 border-r border-zinc-800">
@@ -26,18 +27,26 @@ export function LeftNavSidebar({
       <div className="flex flex-col items-center gap-6">
         {/* WhatsApp Logo Placeholder */}
         <div className="text-green-500 text-3xl font-bold">
-          <img src="/placeholder.svg?height=32&width=32" alt="WhatsApp Logo" className="h-8 w-8" />
+          <img src={Usericon.src} alt="User icon" />
         </div>
 
         {/* Menu Button */}
-        <Button variant="ghost" size="icon" className="text-gray-400 hover:bg-zinc-800 hover:text-white">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-gray-400 hover:bg-zinc-800 hover:text-white"
+        >
           <Menu className="h-6 w-6" />
         </Button>
 
         {/* Navigation Icons */}
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
-            <Button variant="ghost" size="icon" className="text-green-500 hover:bg-zinc-800 hover:text-green-400">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-green-500 hover:bg-zinc-800 hover:text-green-400"
+            >
               <MessageSquare className="h-6 w-6" />
             </Button>
             {unreadChatsCount > 0 && (
@@ -46,17 +55,33 @@ export function LeftNavSidebar({
               </Badge>
             )}
           </div>
-          <Button variant="ghost" size="icon" className="hover:bg-zinc-800 hover:text-white">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-zinc-800 hover:text-white"
+          >
             <Phone className="h-6 w-6" />
           </Button>
-          <Button variant="ghost" size="icon" className="hover:bg-zinc-800 hover:text-white">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-zinc-800 hover:text-white"
+          >
             <Settings className="h-6 w-6" />
           </Button>
-          <Button variant="ghost" size="icon" className="hover:bg-zinc-800 hover:text-white">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-zinc-800 hover:text-white"
+          >
             <Star className="h-6 w-6" />
           </Button>
           <div className="relative">
-            <Button variant="ghost" size="icon" className="hover:bg-zinc-800 hover:text-white">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-zinc-800 hover:text-white"
+            >
               <Archive className="h-6 w-6" />
             </Button>
             {unreadArchiveCount > 0 && (
@@ -71,7 +96,10 @@ export function LeftNavSidebar({
       {/* Bottom Section - User Avatar */}
       <Avatar className="w-10 h-10 border-2 border-green-500">
         <AvatarImage
-          src={currentUser.avatar || "/placeholder.svg?height=40&width=40&query=user-profile"}
+          src={
+            currentUser.avatar ||
+            "/placeholder.svg?height=40&width=40&query=user-profile"
+          }
           alt={currentUser.name}
         />
         <AvatarFallback className="bg-green-600 text-white">
@@ -83,5 +111,5 @@ export function LeftNavSidebar({
         </AvatarFallback>
       </Avatar>
     </div>
-  )
+  );
 }
