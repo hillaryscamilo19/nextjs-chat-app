@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import userIco from "@/public/Iconofondo.jpg";
+import userIco from "@/public/icon.png";
 import { Search, MoreVertical, UserPlus, PencilLine } from "lucide-react"; // Added PencilLine for new chat icon
 import type { Conversation, User } from "@/app/page";
 
@@ -150,7 +150,7 @@ export function ChatSidebar({
                 <div className="flex items-center gap-3">
                   {/* Avatar */}
                   <div className="relative">
-                    <Avatar className="w-20 h-20 ">
+                    <Avatar className="w-10 h-10 ">
                       <img src={userIco.src} alt="User icon" />
                     </Avatar>
                     {otherUser.isOnline && (
@@ -210,28 +210,15 @@ export function ChatSidebar({
       {/* Footer with User Info */}
       <div className="p-4 border-t border-zinc-800 bg-zinc-900">
         <div className="flex items-center gap-3">
-          <Avatar className="w-10 h-10 border-2 border-green-500">
-            <AvatarImage
-              src={
-                currentUser.avatar ||
-                `/placeholder.svg?height=40&width=40&query=${currentUser.name}`
-              }
-              alt={currentUser.name}
-            />
-            <AvatarFallback className="bg-green-600 text-white">
-              {currentUser.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+    
+          <img src={userIco.src} alt="User icon"  className="w-10 h-10"/>
+    
           <div className="flex-1 min-w-0">
             <p className="font-medium text-gray-100 truncate">
               {currentUser.name}
             </p>
             <p className="text-sm text-gray-400">
-              {currentUser.isGuest ? "Usuario invitado" : "En línea"}
+              {currentUser.isGuest ? "Usuario invitado" : "En línea.."}
             </p>
           </div>
         </div>

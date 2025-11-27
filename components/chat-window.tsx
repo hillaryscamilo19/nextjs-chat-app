@@ -18,6 +18,8 @@ import type { Conversation, User, Message } from "@/app/page";
 
 import { useSocket } from "@/hooks/use-socket";
 import { useToast } from "@/hooks/use-toast";
+import { renderToHTMLOrFlight } from "next/dist/server/app-render/app-render";
+import { registerHooks } from "module";
 
 interface ChatWindowProps {
   conversation: Conversation;
@@ -152,7 +154,6 @@ export function ChatWindow({
                 },
               }
             );
-
             if (response.ok) {
               messagesData = await response.json();
               console.log(
@@ -422,9 +423,9 @@ export function ChatWindow({
             </h3>
             <p className="text-sm text-gray-500">
               {otherUserTyping
-                ? "escribiendo..."
+                ? "escribiendo"
                 : otherUser?.isOnline
-                ? "en línea"
+                ? "en línea...."
                 : "desconectado"}
             </p>
           </div>

@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Usericon from "@/public/icono.png";
+import Usericons from "@/public/iconoLetf.png";
 import { Menu } from "lucide-react"; // Assuming this is the hamburger menu icon
 
 interface LeftNavSidebarProps {
@@ -77,13 +78,6 @@ export function LeftNavSidebar({
             <Star className="h-6 w-6" />
           </Button>
           <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-zinc-800 hover:text-white"
-            >
-              <Archive className="h-6 w-6" />
-            </Button>
             {unreadArchiveCount > 0 && (
               <Badge className="absolute -top-2 -right-2 bg-green-500 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full">
                 {unreadArchiveCount}
@@ -94,21 +88,10 @@ export function LeftNavSidebar({
       </div>
 
       {/* Bottom Section - User Avatar */}
-      <Avatar className="w-10 h-10 border-2 border-green-500">
-        <AvatarImage
-          src={
-            currentUser.avatar ||
-            "/placeholder.svg?height=40&width=40&query=user-profile"
-          }
-          alt={currentUser.name}
-        />
-        <AvatarFallback className="bg-green-600 text-white">
-          {currentUser.name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()}
-        </AvatarFallback>
+      <Avatar className="w-10 h-10 border-2">
+        <div className="text-green-500 text-3xl font-bold">
+          <img src={Usericons.src} alt="User icon" />
+        </div>
       </Avatar>
     </div>
   );
