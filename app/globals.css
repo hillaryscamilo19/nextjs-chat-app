@@ -189,7 +189,7 @@
   padding: 8px 12px;
   background: white;
   border-radius: 18px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgb(226, 208, 208);
 }
 
 .typing-dot {
@@ -197,7 +197,7 @@
   height: 8px;
   background: #90a4ae;
   border-radius: 50%;
-  animation: typing-bounce 1.4s infinite ease-in-out;
+  animation: typing-bounce 1.4s infinite ease-in-out;   
 }
 
 .typing-dot:nth-child(2) {

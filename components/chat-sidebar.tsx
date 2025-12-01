@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ interface ChatSidebarProps {
   onCreateNewChat?: () => void;
   onRefresh?: () => void;
 }
+
 export function ChatSidebar({
   conversations,
   selectedConversation,
@@ -105,7 +105,7 @@ export function ChatSidebar({
         {isLoading ? (
           <div className="p-4 text-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto mb-2"></div>
-            <p className="text-sm text-gray-400">Cargando chats..</p>
+            <p className="text-sm text-gray-400">Cargando chats...</p>
           </div>
         ) : filteredConversations.length === 0 ? (
           <div className="p-4 text-center">
@@ -210,9 +210,8 @@ export function ChatSidebar({
       {/* Footer with User Info */}
       <div className="p-4 border-t border-zinc-800 bg-zinc-900">
         <div className="flex items-center gap-3">
-    
-          <img src={userIco.src} alt="User icon"  className="w-10 h-10"/>
-    
+          <img src={userIco.src} alt="User icon" className="w-10 h-10" />
+
           <div className="flex-1 min-w-0">
             <p className="font-medium text-gray-100 truncate">
               {currentUser.name}
