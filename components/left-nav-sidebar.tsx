@@ -5,8 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Usericon from "@/public/icono.png";
+import { useState, useEffect } from "react";
 import Usericons from "@/public/iconoLetf.png";
 import { Menu } from "lucide-react"; // Assuming this is the hamburger menu icon
+import { Conversation } from "@/app/page";
 
 interface LeftNavSidebarProps {
   currentUser: {
@@ -22,6 +24,13 @@ export function LeftNavSidebar({
   unreadChatsCount = 0,
   unreadArchiveCount = 0,
 }: LeftNavSidebarProps) {
+  useState<Conversation | null>(null);
+
+  // Cargar conversaciones al iniciar
+
+
+  // 
+
   return (
     <div className="flex flex-col items-center justify-between w-16 bg-zinc-950 text-gray-400 py-4 border-r border-zinc-800">
       {/* Top Section */}
@@ -30,15 +39,6 @@ export function LeftNavSidebar({
         <div className="text-green-500 text-3xl font-bold">
           <img src={Usericon.src} alt="User icon" />
         </div>
-
-        {/* Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-gray-400 hover:bg-zinc-800 hover:text-white"
-        >
-          <Menu className="h-6 w-6" />
-        </Button>
 
         {/* Navigation Icons */}
         <div className="flex flex-col items-center gap-6">

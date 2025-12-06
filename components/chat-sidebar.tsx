@@ -78,6 +78,7 @@ export function ChatSidebar({
                 <PencilLine className="h-8 w-8" />
               </Button>
             )}
+
             {/* More Options / Three Dots Icon */}
             <Button
               size="sm"

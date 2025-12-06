@@ -120,7 +120,7 @@ export function InviteLinkGenerator({ currentUser }: InviteLinkGeneratorProps) {
           title: "Compartido",
           description: "Enlace compartido exitosamente",
         });
-      } catch (error) {
+      } catch (error: null) {
         if (error.name !== "AbortError") {
           console.error("Error compartiendo:", error);
         }
