@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useSocket } from "@/hooks/use-socket"
 import { conversationsAPI, messagesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { PinnedMessages } from "@/components/pinned-menssage"
+import { PinnedMessages } from "@/components/pinned-menssages"
 import { ChatWindow } from "@/components/chat-window"
 import { SettingsModal } from "@/components/senttings-modal"
 

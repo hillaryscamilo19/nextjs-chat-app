@@ -32,7 +32,6 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   return response.json();
 }
-
 // API Functions
 export const authAPI = {
   register: async (userData: {
